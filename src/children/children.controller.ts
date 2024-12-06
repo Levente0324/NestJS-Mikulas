@@ -7,6 +7,16 @@ import { UpdateChildDto } from './dto/update-child.dto';
 export class ChildrenController {
   constructor(private readonly childrenService: ChildrenService) {}
 
+  @Post(':childId/toys/:toyId')
+  assignToyToChild(@Param('childId') childId: string, @Param('toyId') toyId: string,) {
+    return this.childrenService.assignToyToChild(+childId, +toyId);
+  }
+
+  @Delete(':childId/toys/:toyId')
+  deleteToyFromChild(@Param('childId') childId: string, @Param('toyId') toyId: string,) {
+    return this.childrenService.deleteToyFromChild(+childId, +toyId);
+  }
+
   @Post()
   create(@Body() createChildDto: CreateChildDto) {
     return this.childrenService.create(createChildDto);

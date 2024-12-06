@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateToyDto } from './dto/create-toy.dto';
 import { UpdateToyDto } from './dto/update-toy.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -13,26 +13,33 @@ export class ToysService {
         name: CreateToyDto.name,
         material: CreateToyDto.material,
         weight: CreateToyDto.weight,
-    }})
+      },
+    });
   }
 
   findAll() {
     return this.prisma.game.findMany();
   }
 
-  findOne(id: number) {
-    return this.prisma.game.findFirst({
-      where: {
-        id: id,
-      }
+  async findOne(id: number) {
+    const toy = await this.prisma.game.findFirst({
+      where: { id: id },
     });
+    if (!toy) {
+      throw new NotFoundException(`Toy with ID ${id} not found`);
+    }
+    return toy;
   }
 
-  update(id: number, UpdateToyDto: UpdateToyDto) {
+  async update(id: number, UpdateToyDto: UpdateToyDto) {
+    const toy = await this.prisma.game.findFirst({
+      where: { id: id },
+    });
+    if (!toy) {
+      throw new NotFoundException(`Toy with ID ${id} not found`);
+    }
     return this.prisma.game.update({
-      where: {
-        id: id,
-      },
+      where: { id: id },
       data: {
         name: UpdateToyDto.name,
         material: UpdateToyDto.material,
@@ -41,7 +48,13 @@ export class ToysService {
     });
   }
 
-  remove(id: number) {
-    return this.prisma.game.delete({where: {id:id}});
+  async remove(id: number) {
+    const toy = await this.prisma.game.findFirst({
+      where: { id: id },
+    });
+    if (!toy) {
+      throw new NotFoundException(`Toy with ID ${id} not found`);
+    }
+    return this.prisma.game.delete({ where: { id: id } });
   }
 }
